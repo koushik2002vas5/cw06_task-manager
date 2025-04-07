@@ -23,7 +23,14 @@ class MyApp extends StatelessWidget {
         colorScheme: const ColorScheme.dark(
           primary: Colors.indigo,
           secondary: Colors.indigoAccent,
+          surface: Color(0xFF121212),
           background: Colors.black,
+        ),
+        cardColor: const Color(0xFF1E1E1E),
+        dialogBackgroundColor: const Color(0xFF252525),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.black,
+          elevation: 0,
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
@@ -86,12 +93,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> login() async {
-    if (emailController.text.trim().isEmpty ||
-        passwordController.text.trim().isEmpty) {
+    if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty) {
       showError('Email and password cannot be empty');
       return;
     }
-
+    
     setState(() => isLoading = true);
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -106,12 +112,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> register() async {
-    if (emailController.text.trim().isEmpty ||
-        passwordController.text.trim().isEmpty) {
+    if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty) {
       showError('Email and password cannot be empty');
       return;
     }
-
+    
     setState(() => isLoading = true);
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -129,8 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login/Register',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Login/Register', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: Container(
@@ -165,8 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ElevatedButton(
                     onPressed: login,
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                     ),
                     child: const Text('Login'),
                   ),
@@ -174,8 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: register,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.indigoAccent,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                     ),
                     child: const Text('Register'),
                   ),
@@ -253,11 +255,11 @@ class _TaskScreenState extends State<TaskScreen> {
   Color getPriorityColor(String priority) {
     switch (priority) {
       case 'High':
-        return Colors.red;
+        return Colors.redAccent;
       case 'Medium':
-        return Colors.orange;
+        return Colors.orangeAccent;
       case 'Low':
-        return Colors.green;
+        return Colors.greenAccent;
       default:
         return Colors.grey;
     }
@@ -267,15 +269,27 @@ class _TaskScreenState extends State<TaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tasks for ${user.email}'),
+        title: Text(
+          'Tasks for ${user.email}',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         actions: [
-          IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
+          IconButton(
+            onPressed: logout,
+            icon: const Icon(Icons.logout, color: Colors.white),
+            tooltip: 'Logout',
+          ),
         ],
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey[900],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            margin: const EdgeInsets.all(8),
             child: Column(
               children: [
                 Row(
@@ -283,97 +297,104 @@ class _TaskScreenState extends State<TaskScreen> {
                     Expanded(
                       child: TextField(
                         controller: taskController,
-                        decoration:
-                            const InputDecoration(labelText: 'New Task'),
+                        decoration: const InputDecoration(
+                          labelText: 'New Task',
+                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        ),
                       ),
                     ),
-                    DropdownButton<String>(
-                      value: priority,
-                      items: ['High', 'Medium', 'Low']
-                          .map((level) => DropdownMenuItem(
-                              value: level, child: Text(level)))
-                          .toList(),
-                      onChanged: (val) => setState(() => priority = val!),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[850],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: DropdownButton<String>(
+                        value: priority,
+                        dropdownColor: Colors.grey[850],
+                        underline: Container(),
+                        items: ['High', 'Medium', 'Low']
+                            .map((level) => DropdownMenuItem(
+                                value: level,
+                                child: Text(level, style: TextStyle(color: getPriorityColor(level)))))
+                            .toList(),
+                        onChanged: (val) => setState(() => priority = val!),
+                      ),
                     ),
-                    IconButton(onPressed: addTask, icon: const Icon(Icons.add)),
+                    IconButton(
+                      onPressed: addTask,
+                      icon: const Icon(Icons.add_circle, color: Colors.indigoAccent, size: 28),
+                    ),
                   ],
                 ),
-                Row(
-                  children: [
-                    const Text("Sort by: "),
-                    DropdownButton<String>(
-                      value: sortOption,
-                      items: ['Due Date', 'Priority', 'Completion']
-                          .map((option) => DropdownMenuItem(
-                              value: option, child: Text(option)))
-                          .toList(),
-                      onChanged: (val) => setState(() => sortOption = val!),
-                    ),
-                    const SizedBox(width: 20),
-                    const Text("Filter: "),
-                    DropdownButton<String>(
-                      value: filterPriority,
-                      items: ['All', 'High', 'Medium', 'Low']
-                          .map((option) => DropdownMenuItem(
-                              value: option, child: Text(option)))
-                          .toList(),
-                      onChanged: (val) => setState(() => filterPriority = val!),
-                    ),
-                    const SizedBox(width: 10),
-                    Checkbox(
-                      value: showCompleted,
-                      onChanged: (val) => setState(() => showCompleted = val!),
-                    ),
-                    const Text("Show completed")
-                  ],
-                )
+                const SizedBox(height: 8),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      const Text("Sort by: ", style: TextStyle(color: Colors.grey)),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[850],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButton<String>(
+                          value: sortOption,
+                          dropdownColor: Colors.grey[850],
+                          underline: Container(),
+                          items: ['Due Date', 'Priority', 'Completion']
+                              .map((option) => DropdownMenuItem(
+                                  value: option, child: Text(option)))
+                              .toList(),
+                          onChanged: (val) => setState(() => sortOption = val!),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      const Text("Filter: ", style: TextStyle(color: Colors.grey)),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[850],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: DropdownButton<String>(
+                          value: filterPriority,
+                          dropdownColor: Colors.grey[850],
+                          underline: Container(),
+                          items: ['All', 'High', 'Medium', 'Low']
+                              .map((option) => DropdownMenuItem(
+                                  value: option, child: Text(option)))
+                              .toList(),
+                          onChanged: (val) => setState(() => filterPriority = val!),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Row(
+                        children: [
+                          SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: Checkbox(
+                              value: showCompleted,
+                              onChanged: (val) => setState(() => showCompleted = val!),
+                              checkColor: Colors.black,
+                              fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+                                if (states.contains(MaterialState.selected)) {
+                                  return Colors.indigoAccent;
+                                }
+                                return Colors.grey;
+                              }),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Text("Show completed", style: TextStyle(color: Colors.grey)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: getSortedFilteredQuery().snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData)
-                  return const Center(child: CircularProgressIndicator());
-                return ListView(
-                  children: snapshot.data!.docs.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    return ListTile(
-                      leading: Checkbox(
-                        value: data['completed'] ?? false,
-                        onChanged: (_) => doc.reference.update({
-                          'completed': !(data['completed'] ?? false),
-                        }),
-                      ),
-                      title: Text(data['title']),
-                      subtitle: Text(
-                          'Priority: ${data['priority']} | Due: ${(data['dueDate'] as Timestamp).toDate()}'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: getPriorityColor(data['priority']),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => doc.reference.delete(),
-                          )
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                );
-              },
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
