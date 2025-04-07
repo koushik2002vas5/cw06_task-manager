@@ -93,11 +93,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> login() async {
-    if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty) {
+    if (emailController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty) {
       showError('Email and password cannot be empty');
       return;
     }
-    
+
     setState(() => isLoading = true);
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -112,11 +113,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> register() async {
-    if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty) {
+    if (emailController.text.trim().isEmpty ||
+        passwordController.text.trim().isEmpty) {
       showError('Email and password cannot be empty');
       return;
     }
-    
+
     setState(() => isLoading = true);
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -134,7 +136,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login/Register', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Login/Register',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: Container(
@@ -169,7 +172,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ElevatedButton(
                     onPressed: login,
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 12),
                     ),
                     child: const Text('Login'),
                   ),
@@ -177,7 +181,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     onPressed: register,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.indigoAccent,
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 12),
                     ),
                     child: const Text('Register'),
                   ),
@@ -299,7 +304,8 @@ class _TaskScreenState extends State<TaskScreen> {
                         controller: taskController,
                         decoration: const InputDecoration(
                           labelText: 'New Task',
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                         ),
                       ),
                     ),
@@ -317,14 +323,17 @@ class _TaskScreenState extends State<TaskScreen> {
                         items: ['High', 'Medium', 'Low']
                             .map((level) => DropdownMenuItem(
                                 value: level,
-                                child: Text(level, style: TextStyle(color: getPriorityColor(level)))))
+                                child: Text(level,
+                                    style: TextStyle(
+                                        color: getPriorityColor(level)))))
                             .toList(),
                         onChanged: (val) => setState(() => priority = val!),
                       ),
                     ),
                     IconButton(
                       onPressed: addTask,
-                      icon: const Icon(Icons.add_circle, color: Colors.indigoAccent, size: 28),
+                      icon: const Icon(Icons.add_circle,
+                          color: Colors.indigoAccent, size: 28),
                     ),
                   ],
                 ),
@@ -333,9 +342,11 @@ class _TaskScreenState extends State<TaskScreen> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      const Text("Sort by: ", style: TextStyle(color: Colors.grey)),
+                      const Text("Sort by: ",
+                          style: TextStyle(color: Colors.grey)),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.grey[850],
                           borderRadius: BorderRadius.circular(8),
@@ -352,9 +363,11 @@ class _TaskScreenState extends State<TaskScreen> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      const Text("Filter: ", style: TextStyle(color: Colors.grey)),
+                      const Text("Filter: ",
+                          style: TextStyle(color: Colors.grey)),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.grey[850],
                           borderRadius: BorderRadius.circular(8),
@@ -367,7 +380,8 @@ class _TaskScreenState extends State<TaskScreen> {
                               .map((option) => DropdownMenuItem(
                                   value: option, child: Text(option)))
                               .toList(),
-                          onChanged: (val) => setState(() => filterPriority = val!),
+                          onChanged: (val) =>
+                              setState(() => filterPriority = val!),
                         ),
                       ),
                       const SizedBox(width: 16),
@@ -378,9 +392,12 @@ class _TaskScreenState extends State<TaskScreen> {
                             width: 24,
                             child: Checkbox(
                               value: showCompleted,
-                              onChanged: (val) => setState(() => showCompleted = val!),
+                              onChanged: (val) =>
+                                  setState(() => showCompleted = val!),
                               checkColor: Colors.black,
-                              fillColor: MaterialStateProperty.resolveWith<Color>((states) {
+                              fillColor:
+                                  MaterialStateProperty.resolveWith<Color>(
+                                      (states) {
                                 if (states.contains(MaterialState.selected)) {
                                   return Colors.indigoAccent;
                                 }
@@ -389,7 +406,8 @@ class _TaskScreenState extends State<TaskScreen> {
                             ),
                           ),
                           const SizedBox(width: 4),
-                          const Text("Show completed", style: TextStyle(color: Colors.grey)),
+                          const Text("Show completed",
+                              style: TextStyle(color: Colors.grey)),
                         ],
                       ),
                     ],
@@ -398,3 +416,94 @@ class _TaskScreenState extends State<TaskScreen> {
               ],
             ),
           ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: getSortedFilteredQuery().snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData)
+                  return const Center(child: CircularProgressIndicator());
+
+                final docs = snapshot.data!.docs;
+                if (docs.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No tasks found',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final doc = docs[index];
+                    final data = doc.data() as Map<String, dynamic>;
+                    final isCompleted = data['completed'] ?? false;
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      color: Colors.grey[900],
+                      elevation: 2,
+                      child: ListTile(
+                        leading: Transform.scale(
+                          scale: 1.2,
+                          child: Checkbox(
+                            value: isCompleted,
+                            onChanged: (_) => doc.reference.update({
+                              'completed': !isCompleted,
+                            }),
+                            checkColor: Colors.black,
+                            fillColor: MaterialStateProperty.resolveWith<Color>(
+                                (states) {
+                              if (states.contains(MaterialState.selected)) {
+                                return getPriorityColor(data['priority']);
+                              }
+                              return Colors.grey;
+                            }),
+                          ),
+                        ),
+                        title: Text(
+                          data['title'],
+                          style: TextStyle(
+                            decoration:
+                                isCompleted ? TextDecoration.lineThrough : null,
+                            color: isCompleted ? Colors.grey : Colors.white,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'Priority: ${data['priority']} | Due: ${(data['dueDate'] as Timestamp).toDate().toString().substring(0, 16)}',
+                          style:
+                              TextStyle(color: Colors.grey[500], fontSize: 12),
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: getPriorityColor(data['priority']),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IconButton(
+                              icon: const Icon(Icons.delete,
+                                  color: Colors.redAccent),
+                              onPressed: () => doc.reference.delete(),
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
